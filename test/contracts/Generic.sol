@@ -21,16 +21,19 @@ contract Generic is Boring {
     blerg = _someArg;
   }
 
-  function foo() 
+  function foo()
     internal
     constant
     zounds()
     returns(uint8)
-  { 
+  {
+    wockawocka(0);
     return 1;
   }
-  
+
   function bar() public payable {
+    foo();
+    wockawocka(0);
     deposits[msg.sender] += msg.value;
   }
 

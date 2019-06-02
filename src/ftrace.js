@@ -103,7 +103,7 @@ export function ftrace(functionId, accepted_visibility, files) {
       },
 
       'ContractDefinition:exit': function(node) {
-        contractName = null 
+        contractName = null
         tempUserDefinedStateVars = {}
       },
 
@@ -195,11 +195,17 @@ export function ftrace(functionId, accepted_visibility, files) {
         let localContractName
         let visibility
 
+        function findContract(contracts) {
+          for (const contract of contracts) {
+            if (name in functionCallsTree[contract]) return contract
+          }
+        }
+
         // The following block is a nested switch statement for creation of the call tree
         // START BLOCK
         if (parserHelpers.isRegularFunctionCall(node)) {
           name = expr.name
-          localContractName = contractName
+          localContractName = findContract(dependencies[contractName])
           visibility = 'internal'
         } else if (parserHelpers.isMemberAccess(node)) {
           let object
@@ -233,9 +239,9 @@ export function ftrace(functionId, accepted_visibility, files) {
 
           // Special keywords cases: this, super
           if (object === 'this') {
-            localContractName = contractName
+            localContractName = findContract(dependencies[contractName])
           } else if (object === 'super') {
-            localContractName = dependencies[contractName][1]
+            localContractName = findContract(dependencies[contractName].slice(1))
           // the next two cases are checking if any user defined contract variable members were accessed
           } else if (tempUserDefinedStateVars[object] !== undefined) {
             localContractName = tempUserDefinedStateVars[object]
